@@ -1,10 +1,11 @@
 import requests
 import json
 from collections import OrderedDict
-from couchbase.bucket import Bucket
+#from couchbase.bucket import Bucket
+from couchbaseCRUD import addAPIResponseToDatabase
 
-cb = Bucket('couchbase://localhost/default')
-documentKey = "trn:pulse:company:id:"
+#cb = Bucket('couchbase://localhost/default')
+#documentKey = "trn:pulse:company:id:"
 
 # authentication information & other request parameters
 params_gd = OrderedDict({
@@ -13,7 +14,8 @@ params_gd = OrderedDict({
     "t.p": "79119", #Please change this
     "t.k": "hXV3myqMKQM", #Please change this
     "action": "employers",
-    "q": "retail",
+#    "q": "retail",
+    "l": "india",
     "pn": "1",
     "userip": "192.168.0.104", #Please change this
     "useragent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.81 Safari/537.36"
@@ -35,11 +37,12 @@ print("Total Number of Pages is " + str(data['response']['totalNumberOfPages']))
 # print(response_gd.content)
 
 
-for pageNumber in range(1, data['response']['totalNumberOfPages']+1):
+for pageNumber in range(3544, data['response']['totalNumberOfPages']+1):
     params_gd["pn"] = str(pageNumber)
     response_gd = requests.get(basepath_gd, params=params_gd, headers={"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.81 Safari/537.36"})
     print("Current Page Number is " + str(response_gd.json()['response']['currentPageNumber']))
-    for index in response_gd.json()['response']['employers']:
-        #print(str(index['id']) + " - " + str(index['name']))
-        cb.upsert(documentKey + str(index['id']), index)
+    addAPIResponseToDatabase(response_gd.json())
+#    for index in response_gd.json()['response']['employers']:
+#        #print(str(index['id']) + " - " + str(index['name']))
+#        cb.upsert(documentKey + str(index['id']), index)
 
